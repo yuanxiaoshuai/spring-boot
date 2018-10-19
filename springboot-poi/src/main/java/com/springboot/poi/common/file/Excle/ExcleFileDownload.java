@@ -161,8 +161,8 @@ public class ExcleFileDownload {
                 filename="alex";
             }
             String fileNames = filename + df.format(new Date()) + ".xlsx";
-            response.setHeader("Content-disposition", "attachment; filename = " + URLEncoder.encode(fileNames, "UTF-8"));
-            //response.setHeader("Content-Disposition", "attachment; filename=" + new String((fileName + ".xlsx").getBytes(), "iso-8859-1"));
+            //response.setHeader("Content-disposition", "attachment; filename = " + URLEncoder.encode(fileNames, "UTF-8"));
+            response.setHeader("Content-Disposition", "attachment; filename=" + new String((fileNames + ".xlsx").getBytes(), "iso-8859-1"));
             response.addHeader("Content-Length", "" + content.length);
             response.setContentType("application/vnd.ms-excel;charset=UTF-8");
             ServletOutputStream outputStream = response.getOutputStream();
