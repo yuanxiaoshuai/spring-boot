@@ -136,8 +136,11 @@ public class ExcleFileUpload {
                     if (value == null || "".equals(value)) {
                         continue;
                     }
-                    //存储创建数据
-                    listmap.put(cloumndata.get(k),value);
+                    if(cloumndata.get(k)!=null || "".equals(cloumndata.get(k)) || cloumndata.get(k)!="null"){
+                    	//存储创建数据
+                    	String cloumn=cloumndata.get(k).split(",")[0];
+                        listmap.put(cloumn,value);
+                    }
                 }
                 list.add(listmap);
             }
@@ -230,8 +233,11 @@ public class ExcleFileUpload {
                     if (value == null || "".equals(value)) {
                         continue;
                     }
-                    //存储创建数据
-                    listmap.put(cloumndata.get(k),value);
+                    if(cloumndata.get(k)!=null || "".equals(cloumndata.get(k)) || cloumndata.get(k)!="null"){
+                    	//存储创建数据
+                    	String cloumn=cloumndata.get(k).split(",")[0];
+                        listmap.put(cloumn,value);
+                    }
                 }
                 list.add(listmap);
             }
