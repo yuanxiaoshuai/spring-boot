@@ -86,7 +86,6 @@ public class ExcleFileUpload {
                 if(day>600){
                     break;
                 }
-                //解析单元格
                 HSSFRow row = sheet.getRow(j);
                 int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                 if(physicalNumberOfCells>cloumndata.size()){
@@ -95,6 +94,7 @@ public class ExcleFileUpload {
                     ztmes.setDesc("请严格按照模板样式填写");
                     return  ztmes;
                 }
+                //解析单元格
                 for (int k = 0; k < physicalNumberOfCells; k++) {
                     cell = row.getCell(j);
                     if (cell == null) {
@@ -106,7 +106,9 @@ public class ExcleFileUpload {
                             "yyyy-MM-dd HH:mm:ss");// 格式化日期字符串
                     DecimalFormat nf = new DecimalFormat("0.00");// 格式化数字
                     if(AlexRole.getRole()!=true){break;}
-                    switch (cell.getCellType()) {
+                    cell.setCellType(cell.CELL_TYPE_STRING);
+                    //value=cell.getStringCellValue();
+                   switch (cell.getCellType()) {
                         case XSSFCell.CELL_TYPE_STRING:
                             value = cell.getStringCellValue();
                             break;
@@ -130,6 +132,7 @@ public class ExcleFileUpload {
                         default:
                             value = cell.toString();
                     }
+                    
                     if (value == null || "".equals(value)) {
                         continue;
                     }
@@ -201,6 +204,7 @@ public class ExcleFileUpload {
                     DecimalFormat nf = new DecimalFormat("0.00");// 格式化数字
                     Object value=null;
                     if(AlexRole.getRole()!=true){break;}
+                    cell.setCellType(cell.CELL_TYPE_STRING);
                     switch (cell.getCellType()) {
                         case XSSFCell.CELL_TYPE_STRING:
                             value = cell.getStringCellValue();
