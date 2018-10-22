@@ -77,6 +77,9 @@ public class ExcleFileUpload {
             //解析行
             for (int j = 0; j < physicalNumberOfRows; j++) {
                 Map<String,Object> listmap=new HashMap<>();
+                //解除单元格以title为基准
+                HSSFRow row = sheet.getRow(0);
+                int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                 if (j == 0) {
                     continue;//标题行
                 }
@@ -86,8 +89,7 @@ public class ExcleFileUpload {
                 if(day>600){
                     break;
                 }
-                HSSFRow row = sheet.getRow(j);
-                int physicalNumberOfCells = row.getPhysicalNumberOfCells();
+                
                 if(physicalNumberOfCells>cloumndata.size()){
                     ztmes.setCode(102);
                     ztmes.setSuccess(false);
@@ -95,6 +97,7 @@ public class ExcleFileUpload {
                     return  ztmes;
                 }
                 //解析单元格
+                row = sheet.getRow(j);
                 for (int k = 0; k < physicalNumberOfCells; k++) {
                     cell = row.getCell(j);
                     if (cell == null) {
@@ -182,19 +185,21 @@ public class ExcleFileUpload {
             //解析行
             for (int j = 0; j < physicalNumberOfRows; j++) {
                 Map<String,Object> listmap=new HashMap<>();
+                //解析单元格
+                XSSFRow row = sheet.getRow(0);//以title 为基准
+                int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                 if (j == 0) {
                     continue;//标题行
                 }
                 XSSFCell cell = null;
-                //解析单元格
-                XSSFRow row = sheet.getRow(j);
-                int physicalNumberOfCells = row.getPhysicalNumberOfCells();
                 if(physicalNumberOfCells>cloumndata.size()){
                     ztmes.setCode(102);
                     ztmes.setSuccess(false);
                     ztmes.setDesc("请严格按照模板样式填写");
                     return  ztmes;
                 }
+                //解析单元格
+                row = sheet.getRow(j);
                 for (int k = 0; k < physicalNumberOfCells; k++) {
                     cell = row.getCell(k);
                     if (cell == null) {
