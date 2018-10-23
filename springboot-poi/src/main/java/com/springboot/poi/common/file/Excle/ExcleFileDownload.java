@@ -4,13 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.io.InputStream;
-
-import java.net.URLEncoder;
-
 import java.text.SimpleDateFormat;
-
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -18,38 +13,42 @@ import java.util.Map;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.streaming.SXSSFSheet;
-import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFFont;
-
-import com.springboot.poi.common.role.AlexRole;
+import org.apache.poi.ss.usermodel.DataValidation;
 
 /**
  * 2007
  */
 import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.xssf.streaming.SXSSFSheet;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+
+import com.springboot.poi.common.role.AlexRole;
+import com.springboot.poi.common.util.AlexExcleUtil;
 
 /**
  * excle 数据下载
  * Alex-晓帅
  */
 public class ExcleFileDownload {
+	private static CellStyle titleStyle = null;   
+    private static CellStyle dataStyle = null;  
+
     /**
      * @param listdata 数据
+     * SXSSFWorkbook  低内存占用程序
      * @param titlename head
      * @param filename 文档名称、每sheet 名称
      * @return
      */
     public  static SXSSFWorkbook getworkbook(List<Map<String,Object>> listdata,List<String> titlename,String filename) throws Exception{
         SXSSFWorkbook xWorkbook = null;
-        int rowaccess=100;
+        int rowaccess=1000;
         int totle=listdata.size();//
-        int mus=80000;//设置每页显示80000笔数据
+        int mus=50000;//设置每页显示80000笔数据
         xWorkbook = new SXSSFWorkbook(rowaccess);
         //创建-设置样式
         CellStyle cs = xWorkbook.createCellStyle();
@@ -100,11 +99,89 @@ public class ExcleFileDownload {
             }
         }else{//只下载表头
             Sheet sh = xWorkbook.createSheet(filename+"模板");
+            //加载样式
+            setDataCellStyles(xWorkbook,sh);
+            //加载头部样式
+            settitleCellStyles(xWorkbook,sh);
             //创建head 数据
             setSheetHeader(xWorkbook,sh,titlename);
+            //赋值样式
+            //AlexExcleUtil.toDataValidationByFormula(sh);;
+            
         }
         return xWorkbook;
     }
+    /**
+     *  添加样式下拉框
+     */
+    public static void creatAppRow(Sheet sh,int naturalRowIndex,List<String> titlename){
+    	 Row row = sh.createRow(naturalRowIndex-1);
+    	 for(int i=0;i<titlename.size();i++){
+             Cell   cell = row.createCell(i);
+             String[] keyvalues=titlename.get(i).split(",");
+             if(keyvalues.length>2){
+            	 String name=keyvalues[2];
+            	 if(name!=null && name!=""){
+            		 String[] listname=name.split("-");
+            		 cell.setCellValue("请选择");  
+                	 cell.setCellStyle(dataStyle);  
+                	 //在第一行第一个单元格，插入下拉框  
+                     //得到验证对象    
+                     DataValidation data_validation_list =null;//AlexExcleUtil.getDataValidationByFormula(listname,naturalRowIndex,(i+1)); //从1开始下拉框处于第几列  
+                     //工作表添加验证数据    
+                     sh.addValidationData(data_validation_list);
+            	 }
+             }
+         }
+    }
+    /** 
+     * 数据样式 
+     * @param workbook 
+     * @param sheet 
+     */  
+    public  static void setDataCellStyles(SXSSFWorkbook workbook,Sheet sheet){  
+        dataStyle = workbook.createCellStyle();  
+        //设置边框  
+        dataStyle.setBorderBottom(CellStyle.BORDER_THIN);  
+        dataStyle.setBorderLeft(CellStyle.BORDER_THIN);  
+        dataStyle.setBorderRight(CellStyle.BORDER_THIN);  
+        dataStyle.setBorderTop(CellStyle.BORDER_THIN);  
+        //设置居中  
+        dataStyle.setAlignment(CellStyle.ALIGN_LEFT);  
+        //设置字体  
+        Font font = workbook.createFont();  
+        font.setFontName("宋体");  
+        font.setFontHeightInPoints((short) 11); //设置字体大小  
+        dataStyle.setFont(font);//选择需要用到的字体格式  
+        //设置自动换行  
+        dataStyle.setWrapText(true);  
+    }  
+    /** 
+     * 表头样式 
+     * @param workbook 
+     * @param sheet 
+     */  
+    public static void settitleCellStyles(SXSSFWorkbook workbook,Sheet sheet){  
+    	 titleStyle = workbook.createCellStyle();  
+         //设置边框  
+         titleStyle.setBorderBottom(CellStyle.BORDER_THIN);  
+         titleStyle.setBorderLeft(CellStyle.BORDER_THIN);  
+         titleStyle.setBorderRight(CellStyle.BORDER_THIN);  
+         titleStyle.setBorderTop(CellStyle.BORDER_THIN);  
+         //设置背景色  
+         titleStyle.setFillPattern(CellStyle.SOLID_FOREGROUND);  
+         //设置居中  
+         titleStyle.setAlignment(CellStyle.ALIGN_CENTER);  
+         //设置字体  
+         Font font = workbook.createFont();  
+         font.setFontName("宋体");  
+         font.setFontHeightInPoints((short) 11); //设置字体大小  
+         font.setBoldweight(Font.BOLDWEIGHT_BOLD);//粗体显示  
+         titleStyle.setFont(font);//选择需要用到的字体格式  
+         //设置自动换行  
+         titleStyle.setWrapText(true);
+    }  
+    
     /**
      * 设置表头
      * @param xWorkbook
@@ -112,25 +189,6 @@ public class ExcleFileDownload {
      * @param titlename
      */
     private static void setSheetHeader(SXSSFWorkbook xWorkbook, Sheet sh,List<String> titlename) {
-     sh.setColumnWidth(0, 20 * 156);
-     sh.setColumnWidth(1, 20 * 156);
-     sh.setColumnWidth(2, 20 * 156);
-     sh.setColumnWidth(3, 20 * 156);
-     sh.setColumnWidth(4, 20 * 156);
-     sh.setColumnWidth(5, 20 * 156);
-     sh.setColumnWidth(6, 20 * 256);
-     sh.setColumnWidth(7, 20 * 156);
-     CellStyle cs = xWorkbook.createCellStyle();
-      //设置水平垂直居中
-     cs.setAlignment(CellStyle.ALIGN_CENTER);
-     cs.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
-     //设置字体
-     Font headerFont = xWorkbook.createFont();
-     headerFont.setFontHeightInPoints((short) 12);
-     headerFont.setBoldweight(XSSFFont.BOLDWEIGHT_BOLD);
-     headerFont.setFontName("宋体");
-      cs.setFont(headerFont);
-      cs.setWrapText(true); //是否自动换行
       Row row = sh.createRow(0);
         // 设置表头
         for(int i=0;i<titlename.size();i++){
@@ -138,7 +196,7 @@ public class ExcleFileDownload {
             String[] keyvalues=titlename.get(i).split(",");
             if(keyvalues.length>1){
                 cell.setCellValue(keyvalues[1]);
-                cell.setCellStyle(cs);
+                cell.setCellStyle(titleStyle);
             }
         }
 }
@@ -162,7 +220,7 @@ public class ExcleFileDownload {
             }
             String fileNames = filename + df.format(new Date()) + ".xlsx";
             //response.setHeader("Content-disposition", "attachment; filename = " + URLEncoder.encode(fileNames, "UTF-8"));
-            response.setHeader("Content-Disposition", "attachment; filename=" + new String((fileNames + ".xlsx").getBytes(), "iso-8859-1"));
+            response.setHeader("Content-Disposition", "attachment; filename=" + new String((fileNames).getBytes(), "iso-8859-1"));
             response.addHeader("Content-Length", "" + content.length);
             response.setContentType("application/vnd.ms-excel;charset=UTF-8");
             ServletOutputStream outputStream = response.getOutputStream();
